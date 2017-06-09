@@ -1,0 +1,8 @@
+{
+    "name": "ovidijus/paysera-task",
+    "autoload": {
+        "psr-4": {
+          "Atm\\": "app/Atm"
+        }
+    }
+}

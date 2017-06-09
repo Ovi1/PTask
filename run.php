@@ -5,6 +5,6 @@
  * Date: 2017-06-05
  * Time: 12:57
  */
-require_once( __DIR__ . '/ATM/Atm.php' );
+require_once('app/start.php');
 
-new Atm();
+$var = new Atm\Core\Atm();
