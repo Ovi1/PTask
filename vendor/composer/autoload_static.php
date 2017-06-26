@@ -22,9 +22,11 @@ class ComposerStaticInit5609b955cabd4b040eb6ad8bb56d5718
 
     public static $classMap = array (
         'Atm\\Core\\Atm' => __DIR__ . '/../..' . '/app/Atm/Core/Atm.php',
+        'Atm\\Core\\Client' => __DIR__ . '/../..' . '/app/Atm/Core/Client.php',
         'Atm\\Data\\File' => __DIR__ . '/../..' . '/app/Atm/Data/File.php',
         'Atm\\Money\\Currencies' => __DIR__ . '/../..' . '/app/Atm/Money/Currencies.php',
-        'Atm\\Taxes\\Taxes' => __DIR__ . '/../..' . '/app/Atm/Taxes/Taxes.php',
+        'Atm\\Taxes\\Commissions\\CashInFee' => __DIR__ . '/../..' . '/app/Atm/Taxes/CashInFee.php',
+        'Atm\\Taxes\\Commissions\\CashOutFee' => __DIR__ . '/../..' . '/app/Atm/Taxes/CashOutFee.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

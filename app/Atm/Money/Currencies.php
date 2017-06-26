@@ -12,7 +12,7 @@ namespace Atm\Money;
 
 class Currencies
 {
-    private static $default_currency = "EUR";
+    private static $default_currency = DEFAULT_CURRENCY;
 
     /**
      * @param $amount
@@ -41,6 +41,9 @@ class Currencies
     public function exchangeRates($currency)
     {
         switch (strtoupper($currency)) {
+            case DEFAULT_CURRENCY:
+                $rate = 1;
+                break;
             case "USD":
                 $rate = 1.1497;
                 break;
@@ -48,12 +51,12 @@ class Currencies
                 $rate = 129.53;
                 break;
             default:
-                $rate = 1;
-                break;
+                die('Invalid Currency');
         }
 
         return $rate;
     }
+
 
     /**
      * Apvalinimas
@@ -62,11 +65,13 @@ class Currencies
      *
      * @param $amount
      *
+     * @param $precision
+     *
      * @return float
      */
-    public function roundAmount($amount)
+    public function roundAmount($amount, $precision = 2)
     {
-        $round = round($amount, 2);
+        $round = round($amount, $precision);
 
         return $round;
     }

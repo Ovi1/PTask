@@ -7,7 +7,9 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Atm\\Core\\Atm' => $baseDir . '/app/Atm/Core/Atm.php',
+    'Atm\\Core\\Client' => $baseDir . '/app/Atm/Core/Client.php',
     'Atm\\Data\\File' => $baseDir . '/app/Atm/Data/File.php',
     'Atm\\Money\\Currencies' => $baseDir . '/app/Atm/Money/Currencies.php',
-    'Atm\\Taxes\\Taxes' => $baseDir . '/app/Atm/Taxes/Taxes.php',
+    'Atm\\Taxes\\Commissions\\CashInFee' => $baseDir . '/app/Atm/Taxes/CashInFee.php',
+    'Atm\\Taxes\\Commissions\\CashOutFee' => $baseDir . '/app/Atm/Taxes/CashOutFee.php',
 );
