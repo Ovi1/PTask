@@ -1,8 +1,11 @@
 {
-    "name": "ovidijus/paysera-task",
-    "autoload": {
-        "psr-4": {
-          "Atm\\": "app/Atm"
-        }
+  "name": "ovidijus/paysera-task",
+  "autoload": {
+    "psr-4": {
+      "Atm\\": "app/Atm"
     }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^6.1"
+  }
 }

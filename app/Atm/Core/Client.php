@@ -8,111 +8,150 @@
 
 namespace Atm\Core;
 
+use Atm\Helpers\DateHelper;
+use Atm\Helpers\MoneyHelper;
+use Atm\Money\Currencies;
 use Atm\Taxes\Commissions\CashInFee;
 use Atm\Taxes\Commissions\CashOutFee;
+use Exception;
 
 class Client
 {
     private $id;
-    private $userType;
-    private $cashOutWeek;
+    private $clientType;
+    private $cashOutThisWeek;
     private $cashOutCount;
     private $limit;
     private $week;
     private $lastDate;
 
-    public function __construct($id, $userType)
+    public function __construct($id, $clientType)
     {
-        $this->setLastDate("1000-01-01");
-        $this->setWeek(0);
         $this->setId($id);
-        $this->setUserType($userType);
-        $this->setCashOutWeek(0);
+        $this->setClientType($clientType);
+        $this->setWeek(0);
+        $this->setLastDate("1000-01-01");
+        $this->cashOutThisWeek = 0;
         $this->setCashOutCount(0);
-        $this->setLimit(CASH_OUT_FREE_AMOUNT);
+        $this->setLimit(CASH_OUT_FREE_MAX_AMOUNT);
     }
 
-    /**
-     * @param array $operation
-     */
     public function operation(array $operation)
     {
         switch ($operation[0]) {
             case "cash_in":
-                $inFee       = new CashInFee($this->getId(), $this->getUserType());
-                $cash_in_fee = $inFee->cashInFee($operation[1], $operation[2]);
-                echo self::formatAmount($cash_in_fee);
+                $c = new Currencies;
+                $inFee = new CashInFee();
+                $amount = $c->exchange($operation[1], $operation[2]);
+                $precision = $c->precision($operation[2]);
+                $cash_in_fee = $inFee->cashInFee($amount);
+                echo MoneyHelper::roundUp($cash_in_fee, $precision);
                 break;
             case "cash_out":
-                $outFee       = new CashOutFee($this->getId(), $this->getUserType());
-                $cash_out_fee = $outFee->cashOutFee($operation[1], $operation[2], $operation[3], $operation[4]);
-                echo self::formatAmount($cash_out_fee);
+                $c = new Currencies;
+                $outFee = new CashOutFee();
+                $amount = $c->exchange($operation[1], $operation[2]);
+                $precision = $c->precision($operation[2]);
+                if ($this->isNatural()) {
+                    while ($this->getWeek() == 0) {
+                        $this->setWeek(DateHelper::dateToWeekNumber($operation[3]));
+                        $this->setLastDate($operation[3]);
+                    }
+                    if ($this->getLastDateWeek() != DateHelper::dateToWeekNumber($operation[3])) {
+                        $this->cashOutCount = 0;
+                        //for next week increase by one;
+                        $this->cashOutCount++;
+                        $this->cashOutThisWeek = 0;
+                        $this->setWeek(DateHelper::dateToWeekNumber($operation[3]));
+                    } else {
+                        $this->cashOutThisWeek++;
+                        $this->setCashOutCount($amount);
+                        $this->setWeek(DateHelper::dateToWeekNumber($operation[3]));
+                    }
+                    if ($this->cashOutThisWeek <= CASH_OUT_FEE_DISCOUNT_TIMES_NATURAL) {
+                        if ($this->getCashOutCount() <= $this->getLimit()) {
+                            echo MoneyHelper::roundUp(0, $precision);
+                        } else {
+                            $amount_above_limit = $this->getCashOutCount() - $this->getLimit();
+                            $cash_out_fee = $outFee->cashOutFee($amount_above_limit, $this->getClientType());
+                            echo MoneyHelper::roundUp($cash_out_fee, $precision);
+                        }
+                    } else {
+                        $cash_out_fee = $outFee->cashOutFee($amount, $this->getClientType());
+                        echo MoneyHelper::roundUp($cash_out_fee, $precision);
+                    }
+
+                } else {
+                    $cash_out_fee = $outFee->cashOutFee($amount, $this->getClientType());
+                    echo MoneyHelper::roundUp($cash_out_fee, $precision);
+                }
                 break;
             default:
-                die('Wrong operation type');
-        }
-    }
-
-    public static function formatAmount($amount)
-    {
-        return number_format($amount, 2, '.', '');
-    }
-
-    public function isOverCashLimit()
-    {
-        if ($this->cashOutWeek > CASH_OUT_FREE_AMOUNT) {
-            return true;
-        } else {
-            return false;
+                throw new Exception('Wrong operation type');
         }
     }
 
     /**
      * @return mixed
      */
-    public function getId()
+    public function getClientType()
     {
-        return $this->id;
+        return $this->clientType;
     }
 
     /**
-     * @param mixed $id
+     * @param mixed $clientType
      */
-    public function setId($id)
+    public function setClientType($clientType)
     {
-        $this->id = $id;
+        $this->clientType = $clientType;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getUserType()
-    {
-        return $this->userType;
-    }
+
 
     /**
-     * @param mixed $userType
+     * @return bool
      */
-    public function setUserType($userType)
+    public function isNatural()
     {
-        $this->userType = $userType;
+        return $this->getClientType() === 'natural' ? true : false;
     }
 
     /**
      * @return mixed
      */
-    public function getCashOutWeek()
+    public function getWeek()
     {
-        return $this->cashOutWeek;
+        return $this->week;
     }
 
     /**
-     * @param mixed $cashOutWeek
+     * @param mixed $week
      */
-    public function setCashOutWeek($cashOutWeek)
+    public function setWeek($week)
     {
-        $this->cashOutWeek = $cashOutWeek;
+        $this->week = $week;
+    }
+
+    public function getLastDateWeek()
+    {
+        return DateHelper::dateToWeekNumber($this->getLastDate());
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLastDate()
+    {
+        return $this->lastDate;
+    }
+
+    /**
+     * @param mixed $lastDate
+     */
+    public function setLastDate($lastDate)
+    {
+        $this->lastDate = $lastDate;
     }
 
     /**
@@ -128,7 +167,7 @@ class Client
      */
     public function setCashOutCount($cashOutCount)
     {
-        $this->cashOutCount = $cashOutCount;
+        $this->cashOutCount += $cashOutCount;
     }
 
     /**
@@ -150,32 +189,17 @@ class Client
     /**
      * @return mixed
      */
-    public function getWeek()
+    public function getId()
     {
-        return $this->week;
+        return $this->id;
     }
 
     /**
-     * @param mixed $week
+     * @param mixed $id
      */
-    public function setWeek($week)
+    public function setId($id)
     {
-        $this->week = $week;
+        $this->id = $id;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getLastDate()
-    {
-        return $this->lastDate;
-    }
-
-    /**
-     * @param mixed $lastDate
-     */
-    public function setLastDate($lastDate)
-    {
-        $this->lastDate = $lastDate;
-    }
 }

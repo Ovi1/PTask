@@ -8,19 +8,15 @@
 
 namespace Atm\Taxes\Commissions;
 
-use Atm\Core\Client;
-use Atm\Money\Currencies;
-
-class CashInFee extends Client
+class CashInFee
 {
     protected $cash_in_fee = CASH_IN_FEE;
     protected $cash_in_fee_max = CASH_IN_FEE_MAX; // 5€
 
-    public function cashInFee($amount, $currency)
+    public function cashInFee($amount)
     {
-        $amount_fee = (Currencies::exchange($amount, $currency) / 100) * self::getCashInFee();
-        $final_fee  = $amount_fee > self::getCashInFeeMax() ? self::getCashInFeeMax() : $amount_fee;
-
+        $amount_fee = ($amount * self::getCashInFee()) / 100;
+        $final_fee = $amount_fee > self::getCashInFeeMax() ? self::getCashInFeeMax() : $amount_fee;
         return $final_fee;
     }
 

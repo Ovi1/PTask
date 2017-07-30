@@ -9,7 +9,7 @@
 
 namespace Atm\Data;
 
-use DateTime;
+use Atm\Helpers\DateHelper;
 
 class File
 {
@@ -20,31 +20,17 @@ class File
         $this->file = $file;
     }
 
+    /**
+     * @return array
+     */
     public function formatFileData()
     {
-        $raw_data       = array_map('str_getcsv', file($this->getFile()));
+        $raw_data = array_map('str_getcsv', file($this->getFile()));
         $formatted_data = array();
         foreach ($raw_data as $data) {
-            $formatted_data[] = array(
-                'date'           => $data[0],
-                'week_number'    => self::dateToWeekNumber($data[0]),
-                'client_id'      => $data[1],
-                'client_type'    => $data[2],
-                'operation_type' => $data[3],
-                'amount'         => $data[4],
-                'currency'       => $data[5],
-            );
+            $formatted_data[] = array('date' => $data[0], 'week_number' => DateHelper::dateToWeekNumber($data[0]), 'client_id' => $data[1], 'client_type' => $data[2], 'operation_type' => $data[3], 'amount' => $data[4], 'currency' => $data[5],);
         }
         return $formatted_data;
-    }
-
-
-    public static function dateToWeekNumber($date)
-    {
-        $ddate = new DateTime((string)$date);
-        $week  = $ddate->format("Y-W");
-
-        return $week;
     }
 
     /**
