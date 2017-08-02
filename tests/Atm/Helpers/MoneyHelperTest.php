@@ -18,4 +18,5 @@ class MoneyHelperTest extends TestCase
         $actual = $money_helper::roundUp(1.99, 1);
         $this->assertEquals(2.0, $actual);
     }
+
 }

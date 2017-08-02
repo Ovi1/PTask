@@ -35,7 +35,7 @@ class CashOutFee
 {
     protected $cash_out_fee_legal = CASH_OUT_FEE_FOR_LEGAL;
     protected $cash_out_fee_natural = CASH_OUT_FEE_FOR_NATURAL;
-    protected $cash_out_fee_min = CASH_OUT_FEE_MIN_FOR_LEGAL;
+    protected $cash_out_fee_min_legal = CASH_OUT_FEE_MIN_FOR_LEGAL;
 
 
     /**
@@ -44,19 +44,20 @@ class CashOutFee
      * @return float|int
      * @throws Exception
      */
-    public function cashOutFee($amount, $client_type)
+    public function cashOutFee(float $amount, $client_type)
     {
         switch ($client_type) {
             case 'legal':
-                $amount_fee = ($amount * self::getCashOutFeeLegal()) / 100;
-                $final_fee = $amount_fee < self::getCashOutFeeMin() ? self::getCashOutFeeMin() : $amount_fee;
+                $amount_fee = ($amount * self::getCashOutFeeLegal() / 100);
+                $final_fee = $amount_fee < self::getCashOutFeeMinLegal() ? self::getCashOutFeeMinLegal() : $amount_fee;
+
                 return $final_fee;
                 break;
             case 'natural':
                 return ($amount * self::getCashOutFeeNatural()) / 100;
                 break;
             default:
-                throw new Exception('Invalid client type');
+                throw new Exception('Invalid client type: ' . $client_type);
         }
     }
 
@@ -79,8 +80,8 @@ class CashOutFee
     /**
      * @return float
      */
-    public function getCashOutFeeMin(): float
+    public function getCashOutFeeMinLegal(): float
     {
-        return $this->cash_out_fee_min;
+        return $this->cash_out_fee_min_legal;
     }
 }

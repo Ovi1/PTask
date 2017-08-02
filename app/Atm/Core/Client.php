@@ -52,7 +52,16 @@ class Client
                 $outFee = new CashOutFee();
                 $amount = $c->exchange($operation[1], $operation[2]);
                 $precision = $c->precision($operation[2]);
-                if ($this->isNatural()) {
+                $rates = $c->rates($operation[2]);
+
+
+                if (!$this->isNatural()) {
+                    $cash_out_fee = $outFee->cashOutFee($amount, $this->getClientType());
+
+                    return MoneyHelper::roundUp($cash_out_fee * $rates, $precision);
+
+                } else {
+
                     while ($this->getWeek() == 0) {
                         $this->setWeek(DateHelper::dateToWeekNumber($operation[3]));
                         $this->setLastDate($operation[3]);
@@ -68,26 +77,30 @@ class Client
                         $this->setCashOutCount($amount);
                         $this->setWeek(DateHelper::dateToWeekNumber($operation[3]));
                     }
+
                     if ($this->cashOutThisWeek <= CASH_OUT_FEE_DISCOUNT_TIMES_NATURAL) {
                         if ($this->getCashOutCount() <= $this->getLimit()) {
-                            echo MoneyHelper::roundUp(0, $precision);
-                        } else {
+                            return MoneyHelper::roundUp(0, $precision);
+                        } else if ($amount >= $this->getLimit()) {
                             $amount_above_limit = $this->getCashOutCount() - $this->getLimit();
                             $cash_out_fee = $outFee->cashOutFee($amount_above_limit, $this->getClientType());
-                            echo MoneyHelper::roundUp($cash_out_fee, $precision);
+
+                            return MoneyHelper::roundUp($cash_out_fee * $rates, $precision);
+                        } else {
+                            $cash_out_fee = $outFee->cashOutFee($amount, $this->getClientType());
+
+                            return MoneyHelper::roundUp($cash_out_fee * $rates, $precision);
                         }
+                        //legal
                     } else {
                         $cash_out_fee = $outFee->cashOutFee($amount, $this->getClientType());
-                        echo MoneyHelper::roundUp($cash_out_fee, $precision);
-                    }
 
-                } else {
-                    $cash_out_fee = $outFee->cashOutFee($amount, $this->getClientType());
-                    echo MoneyHelper::roundUp($cash_out_fee, $precision);
+                        return MoneyHelper::roundUp($cash_out_fee * $rates, $precision);
+                    }
                 }
                 break;
             default:
-                throw new Exception('Wrong operation type');
+                throw new Exception('Wrong operation type ' . $operation[0]);
         }
     }
 
@@ -106,7 +119,6 @@ class Client
     {
         $this->clientType = $clientType;
     }
-
 
 
     /**

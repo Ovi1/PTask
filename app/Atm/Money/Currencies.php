@@ -51,8 +51,9 @@ class Currencies
                 $rate = 129.53;
                 break;
             default:
-                throw new Exception('Invalid Currency');
+                throw new Exception('Invalid Currency ' . $currency);
         }
+
         return $rate;
     }
 
@@ -72,13 +73,15 @@ class Currencies
                 $precision = 2;
                 break;
             case "JPY":
-                $precision = 1;
+                $precision = 0;
                 break;
             default:
-                throw new Exception('Invalid Currency');
+                throw new Exception('Invalid Currency ' . $currency);
         }
+
         return $precision;
     }
+
     /**
      * @return string
      */
