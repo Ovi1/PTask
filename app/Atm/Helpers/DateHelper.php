@@ -19,7 +19,7 @@ class DateHelper
     public static function dateToWeekNumber($date)
     {
         $d_date = new DateTime(date('Y-m-d', strtotime($date)));
-        $week = $d_date->format("Y-W");
+        $week = $d_date->format("W");
 
         return $week;
     }

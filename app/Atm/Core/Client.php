@@ -25,12 +25,12 @@ class Client
     private $week;
     private $lastDate;
 
-    public function __construct($id, $clientType)
+    public function __construct($id, $clientType, $week, $date)
     {
         $this->setId($id);
         $this->setClientType($clientType);
-        $this->setWeek(0);
-        $this->setLastDate("1000-01-01");
+        $this->setWeek($week);
+        $this->setLastDate($date);
         $this->cashOutThisWeek = 0;
         $this->setCashOutCount(0);
         $this->setLimit(CASH_OUT_FREE_MAX_AMOUNT);
@@ -38,64 +38,59 @@ class Client
 
     public function operation(array $operation)
     {
-        switch ($operation[0]) {
+
+        switch ($operation['operation_type']) {
             case "cash_in":
                 $c = new Currencies;
                 $inFee = new CashInFee();
-                $amount = $c->exchange($operation[1], $operation[2]);
-                $precision = $c->precision($operation[2]);
+                $amount = $c->exchange($operation['amount'], $operation['currency']);
+                $precision = $c->precision($operation['currency']);
                 $cash_in_fee = $inFee->cashInFee($amount);
                 echo MoneyHelper::roundUp($cash_in_fee, $precision);
                 break;
             case "cash_out":
                 $c = new Currencies;
                 $outFee = new CashOutFee();
-                $amount = $c->exchange($operation[1], $operation[2]);
-                $precision = $c->precision($operation[2]);
-                $rates = $c->rates($operation[2]);
-
-
+                $amount = $c->exchange($operation['amount'], $operation['currency']);
+                $precision = $c->precision($operation['currency']);
+                $rate = $c->rates($operation['currency']);
                 if (!$this->isNatural()) {
                     $cash_out_fee = $outFee->cashOutFee($amount, $this->getClientType());
 
-                    return MoneyHelper::roundUp($cash_out_fee * $rates, $precision);
+                    return MoneyHelper::roundUp($cash_out_fee * $rate, $precision);
 
                 } else {
-
-                    while ($this->getWeek() == 0) {
-                        $this->setWeek(DateHelper::dateToWeekNumber($operation[3]));
-                        $this->setLastDate($operation[3]);
-                    }
-                    if ($this->getLastDateWeek() != DateHelper::dateToWeekNumber($operation[3])) {
+                    if ($this->getWeek() != $operation['week_number']) {
                         $this->cashOutCount = 0;
-                        //for next week increase by one;
-                        $this->cashOutCount++;
                         $this->cashOutThisWeek = 0;
-                        $this->setWeek(DateHelper::dateToWeekNumber($operation[3]));
+                        //for next week increase by one;
+                        $this->cashOutThisWeek++;
+                        $this->setWeek($operation['week_number']);
                     } else {
                         $this->cashOutThisWeek++;
-                        $this->setCashOutCount($amount);
-                        $this->setWeek(DateHelper::dateToWeekNumber($operation[3]));
+                        $this->setWeek($operation['week_number']);
                     }
+                    $this->setCashOutCount($amount);
 
                     if ($this->cashOutThisWeek <= CASH_OUT_FEE_DISCOUNT_TIMES_NATURAL) {
                         if ($this->getCashOutCount() <= $this->getLimit()) {
                             return MoneyHelper::roundUp(0, $precision);
-                        } else if ($amount >= $this->getLimit()) {
-                            $amount_above_limit = $this->getCashOutCount() - $this->getLimit();
-                            $cash_out_fee = $outFee->cashOutFee($amount_above_limit, $this->getClientType());
-
-                            return MoneyHelper::roundUp($cash_out_fee * $rates, $precision);
                         } else {
-                            $cash_out_fee = $outFee->cashOutFee($amount, $this->getClientType());
+                            if ($amount >= $this->getLimit()) {
+                                $amount_above_limit = $this->getCashOutCount() - $this->getLimit();
+                                $cash_out_fee = $outFee->cashOutFee($amount_above_limit, $this->getClientType());
 
-                            return MoneyHelper::roundUp($cash_out_fee * $rates, $precision);
+                                return MoneyHelper::roundUp($cash_out_fee * $rate, $precision);
+                            } else {
+                                $cash_out_fee = $outFee->cashOutFee($amount, $this->getClientType());
+
+                                return MoneyHelper::roundUp($cash_out_fee * $rate, $precision);
+                            }
                         }
-                        //legal
                     } else {
                         $cash_out_fee = $outFee->cashOutFee($amount, $this->getClientType());
 
-                        return MoneyHelper::roundUp($cash_out_fee * $rates, $precision);
+                        return MoneyHelper::roundUp($cash_out_fee * $rate, $precision);
                     }
                 }
                 break;

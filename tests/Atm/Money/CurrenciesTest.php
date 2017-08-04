@@ -18,6 +18,7 @@ class CurrenciesTest extends TestCase
         $actual = $c->rates("USD");
         $this->assertEquals(1.1497, $actual);
     }
+
     public function test_currencies_precisions_usd()
     {
         $c = new Currencies();
