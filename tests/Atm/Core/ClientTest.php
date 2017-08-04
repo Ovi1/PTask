@@ -14,13 +14,13 @@ class ClientTest extends TestCase
 {
     public function test_legal_client_type()
     {
-        $legal = new Client(1, 'legal');
+        $legal = new Client(1, 'legal', 01, '2016-01-01');
         $this->assertEquals('legal', $legal->getClientType());
     }
 
     public function test_natural_client_type()
     {
-        $natural = new Client(2, 'natural');
+        $natural = new Client(2, 'natural', 01, '2016-01-01');
         $this->assertEquals('natural', $natural->getClientType());
     }
 }

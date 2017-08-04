@@ -18,7 +18,7 @@ class CashOutFeeTest extends TestCase
     public function test_cash_out_fee_when_is_less_then_min_for_legal()
     {
         $outFee = new CashOutFee();
-        $client = new Client('1', 'legal');
+        $client = new Client('1', 'legal', 01, '2016-01-01');
         $actual = $outFee->cashOutFee(150, $client->getClientType());
         $this->assertEquals(CASH_OUT_FEE_MIN_FOR_LEGAL, $actual);
     }
@@ -26,7 +26,7 @@ class CashOutFeeTest extends TestCase
     public function test_cash_out_fee_when_is_more_then_min_for_legal()
     {
         $outFee = new CashOutFee();
-        $client = new Client('2', 'legal');
+        $client = new Client('2', 'legal', 01, '2016-01-01');
         $actual = $outFee->cashOutFee(10000, $client->getClientType());
         $this->assertEquals(30, $actual);
     }
@@ -34,7 +34,7 @@ class CashOutFeeTest extends TestCase
     public function test_cash_out_fee_when_is_less_then_min_for_natural()
     {
         $outFee = new CashOutFee();
-        $client = new Client('1', 'natural');
+        $client = new Client('1', 'natural', 01, '2016-01-01');
         $actual = $outFee->cashOutFee(100, $client->getClientType());
         $this->assertEquals(0.3, $actual);
     }
@@ -42,7 +42,7 @@ class CashOutFeeTest extends TestCase
     public function test_cash_out_fee_when_is_more_then_min_for_natural()
     {
         $outFee = new CashOutFee();
-        $client = new Client('2', 'natural');
+        $client = new Client('2', 'natural', 01, '2016-01-01');
         $actual = $outFee->cashOutFee(100, $client->getClientType());
         $this->assertEquals(0.3, $actual);
     }
