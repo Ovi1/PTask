@@ -17,7 +17,6 @@ class CashInFee
     {
         $amount_fee = ($amount * self::getCashInFee()) / 100;
         $final_fee = $amount_fee > self::getCashInFeeMax() ? self::getCashInFeeMax() : $amount_fee;
-
         return $final_fee;
     }
 

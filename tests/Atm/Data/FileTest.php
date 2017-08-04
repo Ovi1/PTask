@@ -14,15 +14,7 @@ class FileTest extends TestCase
 {
     public function test_data_file_headers(): void
     {
-        $data_keys_expected = array(
-            'date',
-            'week_number',
-            'client_id',
-            'client_type',
-            'operation_type',
-            'amount',
-            'currency'
-        );
+        $data_keys_expected = array('date', 'week_number', 'client_id', 'client_type', 'operation_type', 'amount', 'currency');
         $file = new File('input.csv');
         $formatted_data = $file->formatFileData();
         $array_keys = array_keys($formatted_data[0]);

@@ -29,7 +29,6 @@ class Currencies
         } else {
             $exchange_amount = $amount;
         }
-
         return $exchange_amount;
     }
 
