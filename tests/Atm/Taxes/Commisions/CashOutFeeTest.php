@@ -30,6 +30,7 @@ class CashOutFeeTest extends TestCase
         $actual = $outFee->cashOutFee(10000, $client->getClientType());
         $this->assertEquals(30, $actual);
     }
+
     public function test_cash_out_fee_when_is_less_then_min_for_natural()
     {
         $outFee = new CashOutFee();

@@ -16,26 +16,22 @@ class Atm
 {
     public function __construct($data)
     {
-        $usersArray = [];
+
+        $clientsArray = [];
         foreach ($data as $transaction) {
-            $date = $transaction['date'];
-            $id = $transaction['client_id'];
-            $clientType = $transaction['client_type'];
-            $operationType = $transaction['operation_type'];
-            $cash = $transaction['amount'];
-            $currency = $transaction['currency'];
+
             $inArray = false;
-            foreach ($usersArray as $user) {
-                if ($user->getId() == $id) {
+            foreach ($clientsArray as $user) {
+                if ($user->getId() == $transaction['client_id']) {
                     $inArray = true;
                     break;
                 }
             }
             if (!$inArray) {
-                $usersArray[$id] = new Client($id, $clientType);
+                $clientsArray[$transaction['client_id']] = new Client($transaction['client_id'],
+                    $transaction['client_type'], $transaction['week_number'], $transaction['date']);
             }
-            $operation = [$operationType, $cash, $currency, $date, $clientType];
-            fwrite(STDOUT, $usersArray[$id]->operation($operation) . "\r\n");
+            fwrite(STDOUT, $clientsArray[$transaction['client_id']]->operation($transaction) . "\r\n");
         }
     }
 }

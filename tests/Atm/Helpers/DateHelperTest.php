@@ -16,6 +16,6 @@ class DateHelperTest extends TestCase
     {
         $date_helper = new DateHelper;
         $actual = $date_helper::dateToWeekNumber('2016-01-01');
-        $this->assertEquals('2016-53', $actual);
+        $this->assertEquals('53', $actual);
     }
 }

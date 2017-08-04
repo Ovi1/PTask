@@ -12,11 +12,14 @@ use PHPUnit\Framework\TestCase;
 
 class ClientTest extends TestCase
 {
-    public function test_legal_client_type() {
+    public function test_legal_client_type()
+    {
         $legal = new Client(1, 'legal');
         $this->assertEquals('legal', $legal->getClientType());
     }
-    public function test_natural_client_type() {
+
+    public function test_natural_client_type()
+    {
         $natural = new Client(2, 'natural');
         $this->assertEquals('natural', $natural->getClientType());
     }
